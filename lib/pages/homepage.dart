@@ -124,7 +124,7 @@ class _ScreenState extends State<Screen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Text(
-                        'Welcomeee!!',
+                        'Welcome!!',
                         style: GoogleFonts.mulish(
                           fontSize: 13.0,
                           fontWeight: FontWeight.normal,
