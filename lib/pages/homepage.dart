@@ -1,11 +1,9 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:kasirku_mobile/configs/env.dart';
 import 'dart:convert';
-
 import 'package:kasirku_mobile/utils/currency_formatter.dart';
 
 
@@ -57,7 +55,7 @@ class _ScreenState extends State<Screen> {
 
   void _onSearchChanged(){
     if(_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(microseconds: 500), () {
+    _debounce = Timer(const Duration(microseconds: 1000), () {
         _fetchProducts(searchTerm: _searchController.text);
       });
   }
