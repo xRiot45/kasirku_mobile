@@ -148,45 +148,49 @@ class _ScreenState extends State<Screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const CircleAvatar(
+              radius: 15,
+              backgroundColor: Color.fromARGB(255, 199, 199, 199),
+              backgroundImage: AssetImage('images/blank.png')
+            ),
+            const SizedBox(width: 10.0),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  'Welcome!!',
+                  style: GoogleFonts.mulish(
+                    fontSize: 13.0,
+                    fontWeight: FontWeight.normal
+                  )
+                ),
+                const SizedBox(height: 4.0,),
+                Transform.translate(
+                  offset: const Offset(0, -6),
+                  child: Text(
+                    'Customers',
+                    style: GoogleFonts.mulish(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w900
+                    )
+                  )
+                )
+              ]
+            )
+          ]
+        )
+      ),
       body: Container(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const CircleAvatar(
-                  radius: 15,
-                  backgroundColor: Color.fromARGB(255, 199, 199, 199),
-                  backgroundImage: AssetImage('images/blank.png')
-                ),
-                const SizedBox(width: 10.0),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Welcome!!',
-                      style: GoogleFonts.mulish(
-                        fontSize: 13.0,
-                        fontWeight: FontWeight.normal
-                      )
-                    ),
-                    Transform.translate(
-                      offset: const Offset(0, -6),
-                      child: Text(
-                        'Customers',
-                        style: GoogleFonts.mulish(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w900
-                        )
-                      )
-                    )
-                  ]
-                )
-              ]
-            ),
+
             const SizedBox(height: 10.0),
             TextField(
               controller: _searchController,
@@ -216,6 +220,7 @@ class _ScreenState extends State<Screen> {
                 )
               )
             ),
+               const SizedBox(height: 16.0,),
             Expanded(
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
