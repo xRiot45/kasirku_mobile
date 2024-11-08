@@ -6,7 +6,6 @@ import 'package:kasirku_mobile/configs/env.dart';
 import 'dart:convert';
 import 'package:kasirku_mobile/utils/currency_formatter.dart';
 
-
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
 
@@ -15,9 +14,9 @@ class Homepage extends StatelessWidget {
     return MaterialApp(
       title: 'Homepage',
       theme: ThemeData(
-        primarySwatch: Colors.blue
+        primarySwatch: Colors.blue,
       ),
-      home: const Screen()
+      home: const Screen(),
     );
   }
 }
@@ -35,10 +34,16 @@ class _ScreenState extends State<Screen> {
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounce;
 
+  int _currentPage = 1;
+  int _totalPages = 1;
+  final int _limit = 10;
+  bool _hasNextPage = false;
+  bool _hasPreviousPage = false;
+
   @override
   void initState() {
     super.initState();
-    Config.load().then((_){
+    Config.load().then((_) {
         _fetchProducts();
       });
 
@@ -46,7 +51,7 @@ class _ScreenState extends State<Screen> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
     _debounce?.cancel();
@@ -65,17 +70,25 @@ class _ScreenState extends State<Screen> {
       });
   }
 
-  Future<void> _fetchProducts({String searchTerm = ''}) async {
-    String apiUrl = '${Config.apiUrl}/api/products';
-    if(searchTerm.isNotEmpty){
-      apiUrl += '?product_name=$searchTerm';
+  Future<void> _fetchProducts({String searchTerm = '', int page = 1}) async {
+    String apiUrl = '${Config.apiUrl}/api/products?limit=$_limit&page=$page';
+    if (searchTerm.isNotEmpty) {
+      apiUrl += '&product_name=$searchTerm';
     }
+    setState(() {
+        _isLoading = true;
+      });
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);                       
+        final Map<String, dynamic> data = json.decode(response.body);
         setState(() {
-            _products = data['data'];
+            _products = data['data'] ?? [];
+            _currentPage = data['currentPage'] ?? 1;
+            _totalPages = data['totalPages'] ?? 1;
+            _hasNextPage = data['hasNextPage'] != null && data['hasNextPage'];
+            _hasPreviousPage = data['hasPreviousPage'] != null && data['hasPreviousPage'];
+
             _isLoading = false;
           });
       } else {
@@ -84,8 +97,8 @@ class _ScreenState extends State<Screen> {
           });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to load products. Status code: ${response.statusCode}')
-          )
+            content: Text('Failed to load products. Status code: ${response.statusCode}'),
+          ),
         );
       }
     } catch (e) {
@@ -95,9 +108,29 @@ class _ScreenState extends State<Screen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error fetching products: $e')
-        )
+          content: Text('Error fetching products: $e'),
+        ),
       );
+    }
+  }
+
+  void _goToNextPage() {
+    if (_hasNextPage) {
+      setState(() {
+          _currentPage++;
+          _isLoading = true;
+        });
+      _fetchProducts(page: _currentPage);
+    }
+  }
+
+  void _goToPreviousPage() {
+    if (_hasPreviousPage) {
+      setState(() {
+          _currentPage--;
+          _isLoading = true;
+        });
+      _fetchProducts(page: _currentPage);
     }
   }
 
@@ -194,13 +227,12 @@ class _ScreenState extends State<Screen> {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8.0),
-                          child:  product['product_photo'] != null
+                          child: product['product_photo'] != null
                             ? Image.network(
                               productImageUrl,
                               width: double.infinity,
                               height: 120,
                               fit: BoxFit.cover,
-
                               errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported),
                             )
                             : const Icon(Icons.image_not_supported, size: 100),
@@ -241,9 +273,68 @@ class _ScreenState extends State<Screen> {
                   },
                 ),
               ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Previous Button
+                  AnimatedOpacity(
+                    opacity: _hasPreviousPage ? 1.0 : 0.5, // Change opacity based on _hasPreviousPage
+                    duration: const Duration(milliseconds: 200),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        onPressed: _hasPreviousPage ? _goToPreviousPage : null, // Disable button if _hasPreviousPage is false
+                        icon: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Page Indicator
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'Page $_currentPage / $_totalPages',
+                      style: GoogleFonts.mulish(
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  // Next Button
+                  AnimatedOpacity(
+                    opacity: _hasNextPage ? 1.0 : 0.5, // Change opacity based on _hasNextPage
+                    duration: const Duration(milliseconds: 200),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        onPressed: _hasNextPage ? _goToNextPage : null, // Disable button if _hasNextPage is false
+                        icon: const Icon(
+                          Icons.arrow_forward,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+
             ],
           ),
         ),
     );
   }
 }
+
