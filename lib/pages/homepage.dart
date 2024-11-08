@@ -273,62 +273,65 @@ class _ScreenState extends State<Screen> {
                   },
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Previous Button
-                  AnimatedOpacity(
-                    opacity: _hasPreviousPage ? 1.0 : 0.5, // Change opacity based on _hasPreviousPage
-                    duration: const Duration(milliseconds: 200),
-                    child: Container(
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Previous Button
+                    AnimatedOpacity(
+                      opacity: _hasPreviousPage ? 1.0 : 0.5, // Change opacity based on _hasPreviousPage
+                      duration: const Duration(milliseconds: 200),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: IconButton(
+                          onPressed: _hasPreviousPage ? _goToPreviousPage : null, // Disable button if _hasPreviousPage is false
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Page Indicator
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                       decoration: BoxDecoration(
                         color: Colors.orange,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: IconButton(
-                        onPressed: _hasPreviousPage ? _goToPreviousPage : null, // Disable button if _hasPreviousPage is false
-                        icon: const Icon(
-                          Icons.arrow_back,
+                      child: Text(
+                        'Page $_currentPage / $_totalPages',
+                        style: GoogleFonts.mulish(
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
                     ),
-                  ),
-                  // Page Indicator
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      'Page $_currentPage / $_totalPages',
-                      style: GoogleFonts.mulish(
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  // Next Button
-                  AnimatedOpacity(
-                    opacity: _hasNextPage ? 1.0 : 0.5, // Change opacity based on _hasNextPage
-                    duration: const Duration(milliseconds: 200),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: IconButton(
-                        onPressed: _hasNextPage ? _goToNextPage : null, // Disable button if _hasNextPage is false
-                        icon: const Icon(
-                          Icons.arrow_forward,
-                          color: Colors.white,
+                    // Next Button
+                    AnimatedOpacity(
+                      opacity: _hasNextPage ? 1.0 : 0.5, // Change opacity based on _hasNextPage
+                      duration: const Duration(milliseconds: 200),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: IconButton(
+                          onPressed: _hasNextPage ? _goToNextPage : null, // Disable button if _hasNextPage is false
+                          icon: const Icon(
+                            Icons.arrow_forward,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               )
 
             ],
