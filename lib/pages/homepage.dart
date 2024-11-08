@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:kasirku_mobile/configs/env.dart';
+import 'package:kasirku_mobile/pages/detail.dart';
 import 'dart:convert';
 import 'package:kasirku_mobile/utils/currency_formatter.dart';
 
@@ -248,13 +249,27 @@ class _ScreenState extends State<Screen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              product['product_name'] ?? 'No Name',
-                              style: GoogleFonts.mulish(
-                                fontWeight: FontWeight.w900,
-                                fontSize: 15.0
+                            GestureDetector(
+                              onTap: (){
+                                Navigator.push(
+                                  context, 
+                                  MaterialPageRoute(
+                                    builder: (context) => DetailPage(
+                                      productId: product['id'] ?? 'Unknown Product ID'
+                                    )
+                                  )
+                                );
+                              },
+                              child: Text(
+                                product['product_name'] ?? 'No Product Name',
+                                style: GoogleFonts.mulish(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 17.0,
+                                  color: Colors.black
+                                )
                               )
                             ),
+
                             Text(
                               product['product_category']?['product_category_name'] ?? 'No Category',
                               style: GoogleFonts.mulish(
@@ -284,9 +299,8 @@ class _ScreenState extends State<Screen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Previous Button
                   AnimatedOpacity(
-                    opacity: _hasPreviousPage ? 1.0 : 0.5, // Change opacity based on _hasPreviousPage
+                    opacity: _hasPreviousPage ? 1.0 : 0.5,
                     duration: const Duration(milliseconds: 200),
                     child: Container(
                       decoration: BoxDecoration(
@@ -294,7 +308,7 @@ class _ScreenState extends State<Screen> {
                         borderRadius: BorderRadius.circular(8)
                       ),
                       child: IconButton(
-                        onPressed: _hasPreviousPage ? _goToPreviousPage : null, // Disable button if _hasPreviousPage is false
+                        onPressed: _hasPreviousPage ? _goToPreviousPage : null,
                         icon: const Icon(
                           Icons.arrow_back,
                           color: Colors.white
@@ -302,7 +316,6 @@ class _ScreenState extends State<Screen> {
                       )
                     )
                   ),
-                  // Page Indicator
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                     decoration: BoxDecoration(
@@ -318,9 +331,8 @@ class _ScreenState extends State<Screen> {
                       )
                     )
                   ),
-                  // Next Button
                   AnimatedOpacity(
-                    opacity: _hasNextPage ? 1.0 : 0.5, // Change opacity based on _hasNextPage
+                    opacity: _hasNextPage ? 1.0 : 0.5,
                     duration: const Duration(milliseconds: 200),
                     child: Container(
                       decoration: BoxDecoration(
@@ -328,7 +340,7 @@ class _ScreenState extends State<Screen> {
                         borderRadius: BorderRadius.circular(8)
                       ),
                       child: IconButton(
-                        onPressed: _hasNextPage ? _goToNextPage : null, // Disable button if _hasNextPage is false
+                        onPressed: _hasNextPage ? _goToNextPage : null,
                         icon: const Icon(
                           Icons.arrow_forward,
                           color: Colors.white
