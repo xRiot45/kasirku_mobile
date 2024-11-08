@@ -66,8 +66,9 @@ class _ScreenState extends State<Screen> {
     }
     setState(() {
         _isLoading = true;
-      }
-    );
+      });
+
+      
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
