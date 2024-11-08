@@ -9,7 +9,7 @@ class WelcomePage extends StatelessWidget {
     return MaterialApp(
       title: 'Kasirku Mobile',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.blue
       ),
       home: const Screen()
     );
@@ -28,7 +28,7 @@ class _ScreenState extends State<Screen>{
     return MaterialApp(
       title: 'Welcome',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.blue
       ),
       home: Scaffold(
         body: Center(
@@ -39,14 +39,14 @@ class _ScreenState extends State<Screen>{
               children: [
                 const Image(image: AssetImage('images/welcome.png'),
                   width: 300,
-                  height: 300,
+                  height: 300
                 ),
                 const SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const Homepage()),
+                      MaterialPageRoute(builder: (context) => const Homepage())
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -54,20 +54,20 @@ class _ScreenState extends State<Screen>{
                     foregroundColor: Colors.white,
                     minimumSize: const Size(double.infinity, 45),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(7),
+                      borderRadius: BorderRadius.circular(7)
                     ),
-                    elevation: 0,
+                    elevation: 0
                   ),
                   child: Text(
                     'Start',
                     style: GoogleFonts.mulish(
                       fontSize: 16.0,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+                      fontWeight: FontWeight.w600
+                    )
+                  )
+                )
+              ]
+            )
           )
         )
       )

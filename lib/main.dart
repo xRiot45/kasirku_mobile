@@ -13,12 +13,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Kasirku Mobile',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.blue
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const WelcomePage(),
-      },
+        '/':(context) => const WelcomePage()
+      }
     );
   }
 }
