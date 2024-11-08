@@ -40,14 +40,6 @@ class _ScreenState extends State<Screen> {
   int _totalPages = 1;
 
   @override
-  void dispose() {
-    _searchController.removeListener(_onSearchChanged);
-    _searchController.dispose();
-    _debounce?.cancel();
-    super.dispose();
-  }
-
-  @override
   void initState() {
     super.initState();
     Config.load().then((_) {
@@ -58,18 +50,12 @@ class _ScreenState extends State<Screen> {
     _searchController.addListener(_onSearchChanged);
   }
 
-  void _onSearchChanged() {
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
-
-    _debounce = Timer(const Duration(milliseconds: 1000), () {
-        if (_searchController.text.isEmpty) {
-          _fetchProducts();
-        }
-        else {
-          _fetchProducts(searchTerm: _searchController.text);
-        }
-      }
-    ); 
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    _debounce?.cancel();
+    super.dispose();
   }
 
   Future<void> _fetchProducts({String searchTerm = '', int page = 1}) async {
@@ -122,6 +108,20 @@ class _ScreenState extends State<Screen> {
     }
   }
 
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+
+    _debounce = Timer(const Duration(milliseconds: 1000), () {
+        if (_searchController.text.isNotEmpty) {
+          _fetchProducts(searchTerm: _searchController.text);
+        }
+        else {
+          _fetchProducts();
+        }
+      }
+    ); 
+  }
+
   void _goToNextPage() {
     if (_hasNextPage) {
       setState(() {
@@ -147,205 +147,201 @@ class _ScreenState extends State<Screen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _isLoading
-        ? const Center(
-          child: CircularProgressIndicator()
-        )
-        : Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const CircleAvatar(
-                    radius: 15,
-                    backgroundColor: Color.fromARGB(255, 199, 199, 199),
-                    backgroundImage: AssetImage('images/blank.png')
-                  ),
-                  const SizedBox(width: 10.0),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Welcome!!',
-                        style: GoogleFonts.mulish(
-                          fontSize: 13.0,
-                          fontWeight: FontWeight.normal
-                        )
-                      ),
-                      Transform.translate(
-                        offset: const Offset(0, -6),
-                        child: Text(
-                          'Customers',
-                          style: GoogleFonts.mulish(
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w900
-                          )
-                        )
-                      )
-                    ]
-                  )
-                ]
-              ),
-              const SizedBox(height: 10.0),
-              TextField(
-                controller: _searchController,
-                style: GoogleFonts.mulish(
-                  fontSize: 14.0,
-                  color: const Color.fromARGB(255, 102, 102, 102)
+      body: Container(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CircleAvatar(
+                  radius: 15,
+                  backgroundColor: Color.fromARGB(255, 199, 199, 199),
+                  backgroundImage: AssetImage('images/blank.png')
                 ),
-                decoration: InputDecoration(
-                  hintText: 'Search Products',
-                  hintStyle: GoogleFonts.mulish(
-                    fontSize: 14.0,
-                    color: const Color.fromARGB(255, 154, 154, 154)
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0)
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide: const BorderSide(
-                      color: Colors.orange,
-                      width: 2.0
-                    )
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 8.0,
-                    horizontal: 12.0
-                  )
-                )
-              ),
-              Expanded(
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10.0,
-                    mainAxisSpacing: 10.0,
-                    childAspectRatio: 0.75
-                  ),
-                  itemCount: _products.length,
-                  itemBuilder: (context, index) {
-                    final product = _products[index];
-                    final productImageUrl = '${Config.apiUrl}/${product['product_photo'] ?? ''}';
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: product['product_photo'] != null
-                            ? Image.network(
-                              productImageUrl,
-                              width: double.infinity,
-                              height: 120,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported)
-                            )
-                            : const Icon(Icons.image_not_supported, size: 100)
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                product['product_name'] ?? 'No Name',
-                                style: GoogleFonts.mulish(
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 15.0
-                                )
-                              ),
-                              Text(
-                                product['product_category']?['product_category_name'] ?? 'No Category',
-                                style: GoogleFonts.mulish(
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 11.0,
-                                  color: Colors.grey
-                                )
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                formatToRupiah(product['product_price'] ?? 0),
-                                style: GoogleFonts.mulish(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13.0
-                                )
-                              )
-                            ]
-                          )
-                        )
-                      ]
-                    );
-                  }
-                )
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                const SizedBox(width: 10.0),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    // Previous Button
-                    AnimatedOpacity(
-                      opacity: _hasPreviousPage ? 1.0 : 0.5, // Change opacity based on _hasPreviousPage
-                      duration: const Duration(milliseconds: 200),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(8)
-                        ),
-                        child: IconButton(
-                          onPressed: _hasPreviousPage ? _goToPreviousPage : null, // Disable button if _hasPreviousPage is false
-                          icon: const Icon(
-                            Icons.arrow_back,
-                            color: Colors.white
-                          )
-                        )
+                    Text(
+                      'Welcome!!',
+                      style: GoogleFonts.mulish(
+                        fontSize: 13.0,
+                        fontWeight: FontWeight.normal
                       )
                     ),
-                    // Page Indicator
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(8)
-                      ),
+                    Transform.translate(
+                      offset: const Offset(0, -6),
                       child: Text(
-                        'Page $_currentPage / $_totalPages',
+                        'Customers',
                         style: GoogleFonts.mulish(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white
-                        )
-                      )
-                    ),
-                    // Next Button
-                    AnimatedOpacity(
-                      opacity: _hasNextPage ? 1.0 : 0.5, // Change opacity based on _hasNextPage
-                      duration: const Duration(milliseconds: 200),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(8)
-                        ),
-                        child: IconButton(
-                          onPressed: _hasNextPage ? _goToNextPage : null, // Disable button if _hasNextPage is false
-                          icon: const Icon(
-                            Icons.arrow_forward,
-                            color: Colors.white
-                          )
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.w900
                         )
                       )
                     )
                   ]
                 )
+              ]
+            ),
+            const SizedBox(height: 10.0),
+            TextField(
+              controller: _searchController,
+              style: GoogleFonts.mulish(
+                fontSize: 14.0,
+                color: const Color.fromARGB(255, 102, 102, 102)
+              ),
+              decoration: InputDecoration(
+                hintText: 'Search Products',
+                hintStyle: GoogleFonts.mulish(
+                  fontSize: 14.0,
+                  color: const Color.fromARGB(255, 154, 154, 154)
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0)
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: const BorderSide(
+                    color: Colors.orange,
+                    width: 2.0
+                  )
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 8.0,
+                  horizontal: 12.0
+                )
               )
-            ]
-          )
+            ),
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 10.0,
+                  mainAxisSpacing: 10.0,
+                  childAspectRatio: 0.75
+                ),
+                itemCount: _products.length,
+                itemBuilder: (context, index) {
+                  final product = _products[index];
+                  final productImageUrl = '${Config.apiUrl}/${product['product_photo'] ?? ''}';
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: product['product_photo'] != null
+                          ? Image.network(
+                            productImageUrl,
+                            width: double.infinity,
+                            height: 120,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported)
+                          )
+                          : const Icon(Icons.image_not_supported, size: 100)
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              product['product_name'] ?? 'No Name',
+                              style: GoogleFonts.mulish(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 15.0
+                              )
+                            ),
+                            Text(
+                              product['product_category']?['product_category_name'] ?? 'No Category',
+                              style: GoogleFonts.mulish(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 11.0,
+                                color: Colors.grey
+                              )
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              formatToRupiah(product['product_price'] ?? 0),
+                              style: GoogleFonts.mulish(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13.0
+                              )
+                            )
+                          ]
+                        )
+                      )
+                    ]
+                  );
+                }
+              )
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Previous Button
+                  AnimatedOpacity(
+                    opacity: _hasPreviousPage ? 1.0 : 0.5, // Change opacity based on _hasPreviousPage
+                    duration: const Duration(milliseconds: 200),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.circular(8)
+                      ),
+                      child: IconButton(
+                        onPressed: _hasPreviousPage ? _goToPreviousPage : null, // Disable button if _hasPreviousPage is false
+                        icon: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white
+                        )
+                      )
+                    )
+                  ),
+                  // Page Indicator
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.circular(8)
+                    ),
+                    child: Text(
+                      'Page $_currentPage / $_totalPages',
+                      style: GoogleFonts.mulish(
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white
+                      )
+                    )
+                  ),
+                  // Next Button
+                  AnimatedOpacity(
+                    opacity: _hasNextPage ? 1.0 : 0.5, // Change opacity based on _hasNextPage
+                    duration: const Duration(milliseconds: 200),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.circular(8)
+                      ),
+                      child: IconButton(
+                        onPressed: _hasNextPage ? _goToNextPage : null, // Disable button if _hasNextPage is false
+                        icon: const Icon(
+                          Icons.arrow_forward,
+                          color: Colors.white
+                        )
+                      )
+                    )
+                  )
+                ]
+              )
+            )
+          ]
         )
+      )
     );
   }
 }
