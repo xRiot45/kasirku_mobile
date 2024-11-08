@@ -53,10 +53,15 @@ class _ScreenState extends State<Screen> {
     super.dispose();
   }
 
-  void _onSearchChanged(){
-    if(_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(microseconds: 1000), () {
-        _fetchProducts(searchTerm: _searchController.text);
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+
+    _debounce = Timer(const Duration(milliseconds: 1000), () {
+        if (_searchController.text.isEmpty) {
+          _fetchProducts();
+        } else {
+          _fetchProducts(searchTerm: _searchController.text);
+        }
       });
   }
 
